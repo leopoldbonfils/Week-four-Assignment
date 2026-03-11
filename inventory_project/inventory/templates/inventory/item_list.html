@@ -1,0 +1,99 @@
+<!-- inventory/templates/inventory/item_list.html -->
+{% extends "base.html" %}
+
+{% block title %}Inventory List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>📦 Inventory Items</h2>
+  <a href="{% url 'inventory:create' %}" class="btn btn-success">+ Add Item</a>
+</div>
+
+<!-- Search -->
+<form method="get" class="mb-4">
+  <div class="input-group">
+    <input type="text" name="q" value="{{ query }}"
+           class="form-control" placeholder="Search by name...">
+    <button class="btn btn-outline-secondary" type="submit">Search</button>
+    {% if query %}
+      <a href="{% url 'inventory:list' %}" class="btn btn-outline-danger">Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- Table -->
+<table class="table table-hover table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th>Name</th>
+      <th>SKU</th>
+      <th>Category</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{ item.name }}</td>
+      <td><code>{{ item.sku }}</code></td>
+      <td>{{ item.category|default:"—" }}</td>
+      <td>
+        {{ item.quantity }}
+        {% if item.is_low_stock %}
+          <span class="badge bg-warning text-dark ms-1">Low Stock</span>
+        {% endif %}
+      </td>
+      <td>${{ item.unit_price }}</td>
+      <td>
+        {% if item.quantity == 0 %}
+          <span class="badge bg-danger">Out of Stock</span>
+        {% elif item.is_low_stock %}
+          <span class="badge bg-warning text-dark">Low Stock</span>
+        {% else %}
+          <span class="badge bg-success">In Stock</span>
+        {% endif %}
+      </td>
+      <td>
+        <a href="{% url 'inventory:detail' item.pk %}"
+           class="btn btn-sm btn-info">View</a>
+        <a href="{% url 'inventory:update' item.pk %}"
+           class="btn btn-sm btn-warning">Edit</a>
+        <a href="{% url 'inventory:delete' item.pk %}"
+           class="btn btn-sm btn-danger">Delete</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7" class="text-center text-muted">No items found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav>
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">← Prev</a>
+      </li>
+    {% endif %}
+    <li class="page-item disabled">
+      <span class="page-link">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+    </li>
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next →</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}
