@@ -1,0 +1,51 @@
+<!-- inventory/templates/inventory/item_detail.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ item.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>{{ item.name }}</h2>
+  <div>
+    <a href="{% url 'inventory:update' item.pk %}" class="btn btn-warning">Edit</a>
+    <a href="{% url 'inventory:delete' item.pk %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'inventory:list' %}" class="btn btn-secondary">← Back</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <table class="table">
+          <tr><th>SKU</th>         <td><code>{{ item.sku }}</code></td></tr>
+          <tr><th>Category</th>    <td>{{ item.category|default:"—" }}</td></tr>
+          <tr><th>Quantity</th>    <td>{{ item.quantity }}</td></tr>
+          <tr><th>Unit Price</th>  <td>${{ item.unit_price }}</td></tr>
+          <tr>
+            <th>Total Value</th>
+            <td><strong>${{ item.total_value }}</strong></td>
+          </tr>
+          <tr><th>Description</th> <td>{{ item.description|default:"—" }}</td></tr>
+        </table>
+      </div>
+
+      <div class="col-md-6 text-center">
+        <!-- Stock Status Badge -->
+        {% if item.quantity == 0 %}
+          <span class="badge bg-danger fs-4 p-3">Out of Stock</span>
+        {% elif item.is_low_stock %}
+          <span class="badge bg-warning text-dark fs-4 p-3">⚠️ Low Stock</span>
+        {% else %}
+          <span class="badge bg-success fs-4 p-3">✅ In Stock</span>
+        {% endif %}
+
+        <div class="mt-4 text-muted small">
+          <div>Created: {{ item.created_at|date:"M d, Y" }}</div>
+          <div>Updated: {{ item.updated_at|date:"M d, Y" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
